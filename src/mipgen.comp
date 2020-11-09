@@ -53,6 +53,7 @@ vec4 texture_bicubic(vec2 tex_coords) {
 	vec4 sample2 = texture(in_image, offset.xw);
 	vec4 sample3 = texture(in_image, offset.yw);
 	
+	
 	float sx = s.x / (s.x + s.y);
 	float sy = s.z / (s.z + s.w);
 	return mix(mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
