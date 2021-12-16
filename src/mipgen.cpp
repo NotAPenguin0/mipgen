@@ -17,6 +17,15 @@ namespace mipgen {
 
 static uint32_t format_byte_size(ImageFormat format) {
 	switch (format) {
+    case ImageFormat::R8:
+    case ImageFormat::sR8:
+        return 1;
+    case ImageFormat::RG8:
+    case ImageFormat::sRG8:
+            return 2;
+    case ImageFormat::RGB8:
+    case ImageFormat::sRGB8:
+        return 3;
 	case ImageFormat::RGBA8:
 	case ImageFormat::sRGBA8:
 		return 4;
@@ -105,6 +114,15 @@ static uint32_t mip_size_y(ImageInfo const& info, uint32_t mip) {
 // Returns VkFormat that fits the original format, but does not respect color space
 static VkFormat get_vk_format(ImageFormat format) {
 	switch (format) {
+    case ImageFormat::R8:
+    case ImageFormat::sR8:
+        return VK_FORMAT_R8_UNORM;
+    case ImageFormat::RG8:
+    case ImageFormat::sRG8:
+        return VK_FORMAT_R8G8_UNORM;
+    case ImageFormat::RGB8:
+    case ImageFormat::sRGB8:
+        return VK_FORMAT_R8G8B8_UNORM;
 	case ImageFormat::RGBA8:
 	case ImageFormat::sRGBA8:
 		return VK_FORMAT_R8G8B8A8_UNORM;

@@ -15,10 +15,16 @@ enum class GenerationMethod {
 };
 
 enum class ImageFormat {
+    R8 = 9,
+    sR8 = 15,
+    RG8 = 16,
+    sRG8 = 22,
+    RGB8 = 23,
+    sRGB8 = 29,
+    // Value matches VK_FORMAT_R8G8B8A8_UNORM
+    RGBA8 = 37,
 	// Value matches VK_FORMAT_R8G8B8A8_SRGB
 	sRGBA8 = 43,
-	// Value matches VK_FORMAT_R8G8B8A8_UNORM
-	RGBA8 = 44
 };
 
 struct ImageInfo {
