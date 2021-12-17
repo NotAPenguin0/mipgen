@@ -7,12 +7,13 @@
 #include <limits>
 #include <fstream>
 
+#undef MIPGEN_DEBUG
+#define MIPGEN_DEBUG 1
 #if MIPGEN_DEBUG
 #include <iostream>
 #endif
 
 #define MIPGEN_COMPUTE_WORKGROUP_SIZE 16
-
 namespace mipgen {
 
 static uint32_t format_byte_size(ImageFormat format) {
@@ -356,8 +357,13 @@ private:
 		{
 			VkPipelineLayoutCreateInfo info{};
 			info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			info.pushConstantRangeCount = 0;
-			info.pPushConstantRanges = nullptr;
+            VkPushConstantRange push_constants{
+                .stageFlags = VK_SHADER_STAGE_COMPUTE_BIT,
+                .offset = 0,
+                .size = sizeof(uint32_t)
+            };
+			info.pushConstantRangeCount = 1;
+			info.pPushConstantRanges = &push_constants;
 			info.setLayoutCount = 1;
 			info.pSetLayouts = &descr_set_layout;
 			VkResult result = vkCreatePipelineLayout(device, &info, nullptr, &pipeline_layout);
@@ -691,6 +697,14 @@ private:
 
 			vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
 			vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_layout, 0, 1, &descr_set, 0, nullptr);
+
+            // Write push constant with image channels
+            uint32_t channels = 0;
+            if (image_info.format == ImageFormat::R8 || image_info.format == ImageFormat::sR8) channels = 1;
+            else if (image_info.format == ImageFormat::RG8 || image_info.format == ImageFormat::sRG8) channels = 2;
+            else if (image_info.format == ImageFormat::RGB8 || image_info.format == ImageFormat::sRGB8) channels = 3;
+            else if (image_info.format == ImageFormat::RGBA8 || image_info.format == ImageFormat::sRGBA8) channels = 4;
+            vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(uint32_t), &channels);
 
 			// Ceil result using integer division ceil formula ceil(x/y) = (x / y + 1) / y
 			uint32_t dispatches_x = (mip_size_x(image_info, mip) + MIPGEN_COMPUTE_WORKGROUP_SIZE - 1) / MIPGEN_COMPUTE_WORKGROUP_SIZE;
